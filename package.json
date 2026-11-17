@@ -18,7 +18,7 @@
     "package": "cd video-url-parser && npm run package"
   },
   "engines": {
-    "node": ">=18"
+    "node": ">=24.18.0 <25"
   },
   "repository": {
     "type": "git",
