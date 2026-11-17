@@ -30,6 +30,30 @@ These are preliminary facts from the first read-only inspection. They are not a 
 
 **Not yet verified:** No local dependency installation, `npm audit`, outdated-package check, test run, lint, formatting check, or build has been performed as part of this inspection. The lockfile contents alone do not establish whether the dependency tree has known vulnerabilities.
 
+## Architecture Findings from Initial Code Review
+
+The following points were confirmed by reading the repository files on 2026-11-17. They describe the current implementation; they are not all approved design decisions.
+
+- `video-url-parser/` is the actual extension project root. The repository root is a wrapper for documentation/configuration and npm scripts that delegate to the subproject.
+- The extension's original JavaScript source is in `video-url-parser/js/`.
+- `video-url-parser/webpack.config.js` sets `js/getPagesSource.js` as the Webpack entry point and outputs `dist/dist.min.js`. The generated `dist/` directory is not currently present in the tracked repository and should be produced by the build.
+- `video-url-parser/manifest.json` declares `js/background.js` both as the Manifest V3 service worker and as a content script on almost all HTTP(S) pages.
+- `js/background.js` is also loaded by the popup. It branches on the execution context: popup/extension page code injects jQuery and the parser bundle into the active tab; service-worker code manages the toolbar badge and context menus; content-script execution does not have the APIs needed for the popup injection path.
+- The context menu's direct video/audio action uses Chrome's `downloads.download` API. The "Find videos on this page" action opens an external parser website and places the current page URL in its query string.
+- The parser bundle is built from source; future parser changes should target readable files under `js/`, not hand-edit generated minified output.
+- The current design has a likely unnecessary broad content-script registration, but its removal must be verified with regression testing before it is treated as safe.
+- The extension also has external parser/API and online merge integrations outside `background.js`. Trace each integration before making privacy claims or removing host permissions.
+- The extension detects media URLs and hands downloadable URLs to browser download functionality. HLS playlist parsing and actual complete stream downloading/merging are distinct concerns; do not assume the current implementation is a complete local HLS downloader.
+
+## Agreed Working and Testing Approach
+
+- Use GitHub Desktop to clone the repository locally; do not run `git init` because this repository already has Git history.
+- Make project changes on a dedicated working branch rather than directly on the default branch.
+- Work from the repository root for the convenience npm scripts. The root scripts delegate to `video-url-parser/`.
+- After building, the unpacked extension directory to load in Chrome is `video-url-parser/`, because it contains the extension's `manifest.json` and runtime assets.
+- Use Chrome's `chrome://extensions/` page with Developer mode and **Load unpacked** for local testing. After rebuilding, use the extension's reload control to load the new build.
+- Do not assume a build, test, or local installation has succeeded until the project owner reports the result.
+
 ## Milestone 1 — Development Environment and Security Baseline
 
 **Status:** In progress
