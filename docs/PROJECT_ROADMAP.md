@@ -19,16 +19,15 @@ The extension source and its tooling currently live in `video-url-parser/`. The 
 
 These are preliminary facts from the first read-only inspection. They are not a completed security audit, and no dependencies or runtime configuration have been changed.
 
-- The repository root `package.json` has no dependencies. Its `postinstall` script runs `npm --prefix video-url-parser install`, while the root npm scripts delegate other tasks to that subproject.
+- The repository root `package.json` has no dependencies. Its npm scripts now delegate to `video-url-parser/` using `cd video-url-parser && npm ...`; this replaced the earlier `npm --prefix` delegation after it produced an npm configuration warning. The root `postinstall` script uses the same directory-navigation approach.
 - The root `package-lock.json` is lockfile version 3 and contains no dependency package entries.
 - `video-url-parser/package.json` declares an empty `dependencies` object and 10 direct `devDependencies`. The extension's npm tooling is therefore development-only according to the manifest.
 - `video-url-parser/package-lock.json` is lockfile version 3 and records 363 package entries, all marked as development dependencies.
-- Node.js version declarations are inconsistent in age: `.nvmrc` selects Node 20, both package manifests allow Node.js >=18, and CI tests Node 18, 20, and 22.
-- As of 2026-11-17, Node.js 18 and 20 are End-of-Life. Node.js 22 and 24 are in Maintenance LTS, while Node.js 26 is in Active LTS. The current Node 20 local default should therefore be reconsidered before setup is finalized.
+- Node.js is now standardized on `24.18.0` locally: `.nvmrc` selects `24.18.0`, both package manifests require `>=24.18.0 <25`, and CI runs on Node 24.x. This is an agreed project runtime policy.
 - Dependabot is configured for weekly npm updates in both the root and `video-url-parser/` directories, plus GitHub Actions updates.
 - CI currently separates lint/format checks from tests/build and runs with read-only repository contents permission.
 
-**Not yet verified:** No local dependency installation, `npm audit`, outdated-package check, test run, lint, formatting check, or build has been performed as part of this inspection. The lockfile contents alone do not establish whether the dependency tree has known vulnerabilities.
+**Verification update (2026-11-17):** The project owner confirmed Node.js `v24.18.0` and npm `12.2.0`. ESLint, Prettier, all 310 tests, coverage, and the production build passed before the Node-version configuration update. After the Node 24 configuration was pulled, `npm run check` reached `format:check` and stopped because `package.json` has a Prettier formatting warning; tests and build were therefore not rerun in that latest command. The owner has explicitly said occasional Prettier warnings are non-blocking and will be handled periodically. A dedicated dependency/outdated/security review is still pending; do not infer a clean audit from the lockfile or earlier root-level audit output.
 
 ## Architecture Findings from Initial Code Review
 
@@ -48,7 +47,7 @@ The following points were confirmed by reading the repository files on 2026-11-1
 ## Agreed Working and Testing Approach
 
 - Use GitHub Desktop to clone the repository locally; do not run `git init` because this repository already has Git history.
-- Make project changes on a dedicated working branch rather than directly on the default branch.
+- Make approved project changes directly on `master` unless the project owner explicitly requests a separate branch. Do not create a branch without telling the owner first.
 - Work from the repository root for the convenience npm scripts. The root scripts delegate to `video-url-parser/`.
 - After building, the unpacked extension directory to load in Chrome is `video-url-parser/`, because it contains the extension's `manifest.json` and runtime assets.
 - Use Chrome's `chrome://extensions/` page with Developer mode and **Load unpacked** for local testing. After rebuilding, use the extension's reload control to load the new build.
@@ -64,11 +63,11 @@ The following points were confirmed by reading the repository files on 2026-11-1
 
 - [ ] Inspect the root `package.json` and `package-lock.json`.
 - [ ] Inspect `video-url-parser/package.json` and its lockfile, if present.
-- [ ] Review all npm scripts and understand which directory owns each tool.
+- [x] Review all npm scripts and understand which directory owns each tool; simplify root delegation to use `cd video-url-parser && npm ...`.
 - [ ] Inventory production and development dependencies.
 - [ ] Identify lifecycle scripts and transitive dependency considerations.
-- [ ] Review the current Node.js version policy, including `.nvmrc` and `engines`.
-- [ ] Inspect the existing CI workflow and automated dependency update configuration.
+- [x] Review and standardize the Node.js version policy: `.nvmrc` is `24.18.0`, both package manifests require `>=24.18.0 <25`, and CI uses Node 24.x.
+- [x] Inspect the existing CI workflow and automated dependency update configuration; CI has been aligned to Node 24.x.
 - [ ] Check whether the documented setup matches the actual repository configuration.
 
 ### 1.2 Security and Maintenance Review
@@ -76,26 +75,26 @@ The following points were confirmed by reading the repository files on 2026-11-1
 - [ ] Check installed dependencies for known vulnerabilities.
 - [ ] Review outdated dependencies and determine which updates are necessary.
 - [ ] Review dependency update strategy and lockfile practices.
-- [ ] Evaluate npm configuration and install behavior, including lifecycle scripts.
+- [x] Investigate the `global-ignore-file` warning and simplify root npm script delegation; the warning disappeared in the subsequent root-level check.
 - [ ] Review build and packaging scripts for reproducibility and unintended files.
 - [ ] Identify opportunities to strengthen static checks and CI security.
 - [ ] Record findings, risks, and recommended actions before changing tooling.
 
 ### 1.3 Development Environment Decisions
 
-- [ ] Agree on the supported Node.js version.
+- [x] Agree on the supported Node.js version: Node.js 24, with `.nvmrc` pinned to `24.18.0`.
 - [ ] Agree on the package manager and lockfile strategy.
-- [ ] Decide whether root-level install delegation should remain.
+- [x] Keep root-level install delegation, using `cd video-url-parser && npm install` rather than `npm --prefix`.
 - [ ] Agree on dependency update and audit practices.
 - [ ] Agree on the required local validation commands.
 - [ ] Document the final setup instructions.
 
 ### 1.4 Apply and Verify Approved Changes
 
-- [ ] Apply the agreed tooling and configuration changes.
+- [x] Apply the agreed tooling and configuration changes: root npm delegation and Node 24 runtime/CI configuration.
 - [ ] Update lockfiles where necessary.
 - [ ] Run dependency installation from a clean state.
-- [ ] Run tests, linting, formatting checks, coverage, and production build.
+- [ ] Run tests, linting, formatting checks, coverage, and production build after the Node 24 configuration update. Note: Prettier warnings are non-blocking for this project owner; if `npm run check` stops at formatting, run the remaining test/coverage/build commands separately.
 - [ ] Verify the generated extension package and unpacked extension.
 - [ ] Review the final diff and document the outcome.
 
@@ -163,6 +162,9 @@ Record significant project decisions here, including the date, context, decision
 | --- | --- | --- |
 | 2026-11-17 | Begin with development environment and security baseline before feature work. | Agreed |
 | 2026-11-17 | Plan to simplify localization to English only for personal use; inspect and update UI wiring, Chrome metadata, and tests before removing other locales. | Planned |
+| 2026-11-17 | Standardize the project runtime on Node.js 24: `.nvmrc` `24.18.0`, package engine range `>=24.18.0 <25`, and CI Node 24.x. | Implemented; local version verified |
+| 2026-11-17 | Replace root `npm --prefix` script delegation with directory navigation after investigating the npm configuration warning. | Implemented; warning absent in subsequent root check |
+| 2026-11-17 | Treat occasional Prettier formatting warnings as non-blocking; the project owner will format periodically. | Agreed |
 
 ## Notes
 
