@@ -9,6 +9,44 @@ This repository contains the Simple Video Download Helper browser extension.
 - The extension uses Chrome Extension Manifest V3.
 - The parser is intended to remain dependency-free at runtime. Development and test dependencies are separate from the shipped extension code.
 
+## Confirmed Extension Architecture
+
+The actual browser extension and its development tooling live in `video-url-parser/`. Treat that directory as the extension project root.
+
+Key source files and responsibilities:
+
+- `manifest.json`: Manifest V3 configuration, extension permissions, popup, service worker, and content-script registration.
+- `main.html`: Popup UI.
+- `js/popup.js`: Popup behavior.
+- `js/background.js`: Currently reused in multiple contexts: the Manifest V3 service worker, a broadly registered content script, and an extension page script loaded by the popup. Its behavior is gated by whether `window` exists.
+- `js/getPagesSource.js`: Webpack entry point for the media-detection/parser bundle.
+- `js/parsevideo.js`: Video parsing logic.
+- `js/video.js`: Popup-side media URL handling and download-related behavior.
+- `js/functions.js` and `js/constants.js`: Shared utilities and constants.
+- `webpack.config.js`: Bundles `js/getPagesSource.js` into `dist/dist.min.js`.
+- `dist/dist.min.js`: Generated parser bundle; it is build output, not the primary source to edit. The current repository does not track this generated directory.
+
+The root `package.json` is a convenience wrapper. Its scripts delegate to `video-url-parser/`; its `postinstall` script installs that subproject's development dependencies. The extension's own `package.json` and lockfile are inside `video-url-parser/`.
+
+### Current background-script behavior
+
+Based on the inspected `js/background.js` and `manifest.json`:
+
+- In the popup/extension-page context, `background.js` queries the active tab and injects jQuery 3.4.1 and the generated parser bundle into eligible HTTP(S) pages.
+- In the service-worker context, it updates the toolbar badge from parser messages, clears the badge when a tab starts loading, and creates right-click context menus.
+- The direct video/audio context-menu action calls Chrome's `downloads.download` API with the selected media URL.
+- The "Find videos on this page" context-menu action opens an external parser website and includes the current page URL in its query string.
+- The same file is registered as a content script on nearly all HTTP(S) pages. In that context, the popup injection path is not available; the file currently adds a runtime message listener but does not perform the main parser injection.
+
+These are observations of the current implementation, not a final architecture recommendation. Verify behavior before removing or relocating any responsibilities.
+
+### Privacy and external-service observations
+
+- The context-menu external-parser action sends the current page URL to the external website when the user selects that action.
+- Other external parser, optional VIP API, and online HLS-merge integrations exist elsewhere in the extension and must be reviewed in their owning source files.
+- Do not describe the extension as entirely local until all network requests and external integrations have been traced.
+- No malicious behavior was identified in the inspected `background.js`, but reviewing one file is not a complete security audit.
+
 ## Working Agreement
 
 - The repository owner is the project lead and makes final decisions about scope, architecture, dependencies, and behavior.
