@@ -47,7 +47,7 @@
   "author": "justyy <dr.zhihua.lai@gmail.com> (https://helloacm.com)",
   "license": "MIT",
   "engines": {
-    "node": ">=18"
+    "node": ">=24.18.0 <25"
   },
   "bugs": {
     "url": "https://github.com/DoctorLai/VideoDownloadHelper/issues"
