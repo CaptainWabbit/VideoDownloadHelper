@@ -139,6 +139,22 @@ The following points were confirmed by reading the repository files on 2026-11-1
 - [ ] Agree on scope and acceptance criteria for each change.
 - [ ] Implement changes incrementally with appropriate tests and documentation.
 
+### 4.1 English-Only Localization Cleanup
+
+**Status:** Planned
+
+**Objective:** Simplify the extension for personal use by retaining English and removing unused translations.
+
+- [ ] Keep the English UI translation as the single supported language.
+- [ ] Keep the English Chrome extension metadata locale and remove other locale directories.
+- [ ] Remove the language selector from the popup if it is only used for switching translations.
+- [ ] Simplify or remove translation-loading and language-switching logic that is no longer needed.
+- [ ] Update localization tests to validate the English-only setup instead of requiring 25+ languages.
+- [ ] Check the manifest and all locale references before deleting translation assets.
+- [ ] Run the full project check and production build after the cleanup.
+
+**Scope note:** This is a planned cleanup, not authorization to remove files immediately. Inspect the current localization wiring first and preserve English labels, descriptions, and popup behavior.
+
 ## Decision Log
 
 Record significant project decisions here, including the date, context, decision, and consequences.
@@ -146,6 +162,7 @@ Record significant project decisions here, including the date, context, decision
 | Date | Decision | Status |
 | --- | --- | --- |
 | 2026-11-17 | Begin with development environment and security baseline before feature work. | Agreed |
+| 2026-11-17 | Plan to simplify localization to English only for personal use; inspect and update UI wiring, Chrome metadata, and tests before removing other locales. | Planned |
 
 ## Notes
 
