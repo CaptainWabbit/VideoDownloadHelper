@@ -15,6 +15,21 @@ The extension source and its tooling currently live in `video-url-parser/`. The 
 - Verify changes locally before considering a task complete.
 - Record important decisions and update this roadmap as the project evolves.
 
+## Initial Repository Observations
+
+These are preliminary facts from the first read-only inspection. They are not a completed security audit, and no dependencies or runtime configuration have been changed.
+
+- The repository root `package.json` has no dependencies. Its `postinstall` script runs `npm --prefix video-url-parser install`, while the root npm scripts delegate other tasks to that subproject.
+- The root `package-lock.json` is lockfile version 3 and contains no dependency package entries.
+- `video-url-parser/package.json` declares an empty `dependencies` object and 10 direct `devDependencies`. The extension's npm tooling is therefore development-only according to the manifest.
+- `video-url-parser/package-lock.json` is lockfile version 3 and records 363 package entries, all marked as development dependencies.
+- Node.js version declarations are inconsistent in age: `.nvmrc` selects Node 20, both package manifests allow Node.js >=18, and CI tests Node 18, 20, and 22.
+- As of 2026-11-17, Node.js 18 and 20 are End-of-Life. Node.js 22 and 24 are in Maintenance LTS, while Node.js 26 is in Active LTS. The current Node 20 local default should therefore be reconsidered before setup is finalized.
+- Dependabot is configured for weekly npm updates in both the root and `video-url-parser/` directories, plus GitHub Actions updates.
+- CI currently separates lint/format checks from tests/build and runs with read-only repository contents permission.
+
+**Not yet verified:** No local dependency installation, `npm audit`, outdated-package check, test run, lint, formatting check, or build has been performed as part of this inspection. The lockfile contents alone do not establish whether the dependency tree has known vulnerabilities.
+
 ## Milestone 1 — Development Environment and Security Baseline
 
 **Status:** In progress
