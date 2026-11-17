@@ -1,0 +1,115 @@
+# Project Roadmap
+
+## Project Goal
+
+Maintain and improve the Simple Video Download Helper browser extension with a focus on a reliable development workflow, security, maintainability, and preserving the extension's intended functionality.
+
+The extension source and its tooling currently live in `video-url-parser/`. The repository root provides convenience npm scripts that delegate into that directory.
+
+## Roadmap Principles
+
+- Work in small, reviewable steps.
+- Audit before changing dependencies, architecture, permissions, or behavior.
+- Prioritize security improvements that address a clearly identified risk.
+- Preserve the parser's dependency-free runtime unless a change is explicitly agreed upon.
+- Verify changes locally before considering a task complete.
+- Record important decisions and update this roadmap as the project evolves.
+
+## Milestone 1 — Development Environment and Security Baseline
+
+<badge>In progress</badge>
+
+**Objective:** Understand the current development toolchain and establish a secure, reproducible environment before making broader code changes.
+
+### 1.1 Repository and Tooling Audit
+
+- [ ] Inspect the root `package.json` and `package-lock.json`.
+- [ ] Inspect `video-url-parser/package.json` and its lockfile, if present.
+- [ ] Review all npm scripts and understand which directory owns each tool.
+- [ ] Inventory production and development dependencies.
+- [ ] Identify lifecycle scripts and transitive dependency considerations.
+- [ ] Review the current Node.js version policy, including `.nvmrc` and `engines`.
+- [ ] Inspect the existing CI workflow and automated dependency update configuration.
+- [ ] Check whether the documented setup matches the actual repository configuration.
+
+### 1.2 Security and Maintenance Review
+
+- [ ] Check installed dependencies for known vulnerabilities.
+- [ ] Review outdated dependencies and determine which updates are necessary.
+- [ ] Review dependency update strategy and lockfile practices.
+- [ ] Evaluate npm configuration and install behavior, including lifecycle scripts.
+- [ ] Review build and packaging scripts for reproducibility and unintended files.
+- [ ] Identify opportunities to strengthen static checks and CI security.
+- [ ] Record findings, risks, and recommended actions before changing tooling.
+
+### 1.3 Development Environment Decisions
+
+- [ ] Agree on the supported Node.js version.
+- [ ] Agree on the package manager and lockfile strategy.
+- [ ] Decide whether root-level install delegation should remain.
+- [ ] Agree on dependency update and audit practices.
+- [ ] Agree on the required local validation commands.
+- [ ] Document the final setup instructions.
+
+### 1.4 Apply and Verify Approved Changes
+
+- [ ] Apply the agreed tooling and configuration changes.
+- [ ] Update lockfiles where necessary.
+- [ ] Run dependency installation from a clean state.
+- [ ] Run tests, linting, formatting checks, coverage, and production build.
+- [ ] Verify the generated extension package and unpacked extension.
+- [ ] Review the final diff and document the outcome.
+
+**Milestone completion criteria:**
+
+- The development environment and supported Node.js version are documented.
+- Dependency ownership and installation behavior are understood.
+- Security and maintenance risks have been reviewed.
+- Approved changes are implemented without unexplained dependency or architecture changes.
+- Relevant quality checks and the extension build pass locally.
+- The project owner has reviewed the changes.
+
+## Milestone 2 — Extension Architecture and Security Review
+
+**Objective:** Understand the extension's runtime architecture and identify security-sensitive code paths.
+
+- [ ] Map the extension entry points, popup, content scripts, and background/service-worker behavior.
+- [ ] Review `manifest.json` permissions and host access.
+- [ ] Trace message passing between extension contexts.
+- [ ] Review URL parsing, validation, and page-provided input handling.
+- [ ] Review DOM operations and HTML insertion for injection risks.
+- [ ] Review network requests and data handling.
+- [ ] Document the architecture and prioritize verified findings.
+
+## Milestone 3 — Reliability and Test Coverage
+
+**Objective:** Improve confidence in existing behavior and future changes.
+
+- [ ] Review existing test coverage and identify important gaps.
+- [ ] Add regression tests for confirmed bugs and security-sensitive behavior.
+- [ ] Improve test fixtures for supported websites where appropriate.
+- [ ] Verify build and packaging behavior in CI.
+- [ ] Establish practical regression checks for future changes.
+
+## Milestone 4 — Product Improvements
+
+**Objective:** Plan and implement user-facing improvements after the development and security baseline is established.
+
+- [ ] Review current extension behavior and known limitations.
+- [ ] Gather and prioritize proposed improvements.
+- [ ] Agree on scope and acceptance criteria for each change.
+- [ ] Implement changes incrementally with appropriate tests and documentation.
+
+## Decision Log
+
+Record significant project decisions here, including the date, context, decision, and consequences.
+
+| Date | Decision | Status |
+| --- | --- | --- |
+| 2026-11-17 | Begin with development environment and security baseline before feature work. | Agreed |
+
+## Notes
+
+- This roadmap is an evolving plan, not a commitment to implement every item.
+- Proposed changes remain pending until discussed and agreed upon.
+- Mark tasks complete only after implementation and verification.
