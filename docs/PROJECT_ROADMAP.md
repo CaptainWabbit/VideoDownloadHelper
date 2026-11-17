@@ -17,7 +17,7 @@ The extension source and its tooling currently live in `video-url-parser/`. The 
 
 ## Milestone 1 — Development Environment and Security Baseline
 
-<badge>In progress</badge>
+**Status:** In progress
 
 **Objective:** Understand the current development toolchain and establish a secure, reproducible environment before making broader code changes.
 
